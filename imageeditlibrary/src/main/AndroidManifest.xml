@@ -5,6 +5,7 @@
         <!--图片编辑Activity-->
         <activity
             android:name="com.xinlan.imageeditlibrary.editimage.EditImageActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
     </application>
