@@ -3,6 +3,8 @@ package com.xinlan.imageeditlibrary.editimage.utils;
 import static android.webkit.MimeTypeMap.getFileExtensionFromUrl;
 import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import java.io.File;
@@ -35,11 +37,17 @@ public class FileUtil {
             return;
         }
 
-        ContentValues values = new ContentValues(2);
-        String extensionName = getFileExtensionFromUrl(dstPath);
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/" + (TextUtils.isEmpty(extensionName)
-                || extensionName.equals("jpg") ? "jpeg" : extensionName));
-        values.put(MediaStore.Images.Media.DATA, dstPath);
-        context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//        ContentValues values = new ContentValues(2);
+//        String extensionName = getFileExtensionFromUrl(dstPath);
+//        values.put(MediaStore.Images.Media.MIME_TYPE, "image/" + (TextUtils.isEmpty(extensionName)
+//                || extensionName.equals("jpg") ? "jpeg" : extensionName));
+//        values.put(MediaStore.Images.Media.DATA, dstPath);
+//        context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, file.getName());
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/xinlanedit");
+
+        final Uri uri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
     }
 }//end class

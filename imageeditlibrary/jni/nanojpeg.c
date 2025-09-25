@@ -101,75 +101,7 @@
 // HEADER SECTION                                                            //
 // copy and pase this into nanojpeg.h if you want                            //
 ///////////////////////////////////////////////////////////////////////////////
-
-#ifndef _NANOJPEG_H
-#define _NANOJPEG_H
-
-// nj_result_t: Result codes for njDecode().
-typedef enum _nj_result {
-    NJ_OK = 0,        // no error, decoding successful
-    NJ_NO_JPEG,       // not a JPEG file
-    NJ_UNSUPPORTED,   // unsupported format
-    NJ_OUT_OF_MEM,    // out of memory
-    NJ_INTERNAL_ERR,  // internal error
-    NJ_SYNTAX_ERROR,  // syntax error
-    __NJ_FINISHED,    // used internally, will never be reported
-} nj_result_t;
-
-// njInit: Initialize NanoJPEG.
-// For safety reasons, this should be called at least one time before using
-// using any of the other NanoJPEG functions.
-void njInit(void);
-
-// njDecode: Decode a JPEG image.
-// Decodes a memory dump of a JPEG file into internal buffers.
-// Parameters:
-//   jpeg = The pointer to the memory dump.
-//   size = The size of the JPEG file.
-// Return value: The error code in case of failure, or NJ_OK (zero) on success.
-nj_result_t njDecode(const void* jpeg, const int size, int decodeRed, int decodeGreen, int decodeBlue);
-
-// njGetWidth: Return the width (in pixels) of the most recently decoded
-// image. If njDecode() failed, the result of njGetWidth() is undefined.
-int njGetWidth(void);
-
-// njGetHeight: Return the height (in pixels) of the most recently decoded
-// image. If njDecode() failed, the result of njGetHeight() is undefined.
-int njGetHeight(void);
-
-// njIsColor: Return 1 if the most recently decoded image is a color image
-// (RGB) or 0 if it is a grayscale image. If njDecode() failed, the result
-// of njGetWidth() is undefined.
-int njIsColor(void);
-
-// njGetImage: Returns the decoded image data.
-// Returns a pointer to the most recently image. The memory layout it byte-
-// oriented, top-down, without any padding between lines. Pixels of color
-// images will be stored as three consecutive bytes for the red, green and
-// blue channels. This data format is thus compatible with the PGM or PPM
-// file formats and the OpenGL texture formats GL_LUMINANCE8 or GL_RGB8.
-// If njDecode() failed, the result of njGetImage() is undefined.
-
-// njGetRedImage, njGetGreenImage, and njGetBlueImage returns decoded image
-// data for the respective colour channel.
-unsigned char* njGetRedImage(void);
-unsigned char* njGetGreenImage(void);
-unsigned char* njGetBlueImage(void);
-
-// njGetImageSize: Returns the size (in bytes) of the image data returned
-// by njGetImage(). If njDecode() failed, the result of njGetImageSize() is
-// undefined.
-int njGetImageSize(void);
-
-// njDone: Uninitialize NanoJPEG.
-// Resets NanoJPEG's internal state and frees all memory that has been
-// allocated at run-time by NanoJPEG. It is still possible to decode another
-// image after a njDone() call.
-void njDone(void);
-
-void njDoneLeaveRGBData(void);
-
-#endif//_NANOJPEG_H
+#include "nanojpeg.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -178,19 +110,19 @@ void njDoneLeaveRGBData(void);
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef NJ_USE_LIBC
-    #define NJ_USE_LIBC 1
+#define NJ_USE_LIBC 1
 #endif
 
 #ifndef NJ_USE_WIN32
-  #ifdef _MSC_VER
-    #define NJ_USE_WIN32 (!NJ_USE_LIBC)
-  #else
-    #define NJ_USE_WIN32 0
-  #endif
+#ifdef _MSC_VER
+#define NJ_USE_WIN32 (!NJ_USE_LIBC)
+#else
+#define NJ_USE_WIN32 0
+#endif
 #endif
 
 #ifndef NJ_CHROMA_FILTER
-    #define NJ_CHROMA_FILTER 1
+#define NJ_CHROMA_FILTER 1
 #endif
 
 
@@ -255,22 +187,22 @@ int main(int argc, char* argv[]) {
 #ifndef _NJ_INCLUDE_HEADER_ONLY
 
 #ifdef _MSC_VER
-    #define NJ_INLINE static __inline
+#define NJ_INLINE static __inline
     #define NJ_FORCE_INLINE static __forceinline
 #else
-    #define NJ_INLINE static inline
-    #define NJ_FORCE_INLINE static inline
+#define NJ_INLINE static inline
+#define NJ_FORCE_INLINE static inline
 #endif
 
 #if NJ_USE_LIBC
-    #include <stdlib.h>
-    #include <string.h>
-    #define njAllocMem malloc
-    #define njFreeMem  free
-    #define njFillMem  memset
-    #define njCopyMem  memcpy
+#include <stdlib.h>
+#include <string.h>
+#define njAllocMem malloc
+#define njFreeMem  free
+#define njFillMem  memset
+#define njCopyMem  memcpy
 #elif NJ_USE_WIN32
-    #include <windows.h>
+#include <windows.h>
     #define njAllocMem(size) ((void*) LocalAlloc(LMEM_FIXED, (SIZE_T)(size)))
     #define njFreeMem(block) ((void) LocalFree((HLOCAL) block))
     NJ_INLINE void njFillMem(void* block, unsigned char value, int count) { __asm {
@@ -331,9 +263,9 @@ typedef struct _nj_ctx {
 static nj_context_t nj;
 
 static const char njZZ[64] = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18,
-11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35,
-42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45,
-38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63 };
+                               11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35,
+                               42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45,
+                               38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63 };
 
 NJ_FORCE_INLINE unsigned char njClip(const int x) {
     return (x < 0) ? 0 : ((x > 0xFF) ? 0xFF : (unsigned char) x);
@@ -349,12 +281,12 @@ NJ_FORCE_INLINE unsigned char njClip(const int x) {
 NJ_INLINE void njRowIDCT(int* blk) {
     int x0, x1, x2, x3, x4, x5, x6, x7, x8;
     if (!((x1 = blk[4] << 11)
-        | (x2 = blk[6])
-        | (x3 = blk[2])
-        | (x4 = blk[1])
-        | (x5 = blk[7])
-        | (x6 = blk[5])
-        | (x7 = blk[3])))
+          | (x2 = blk[6])
+          | (x3 = blk[2])
+          | (x4 = blk[1])
+          | (x5 = blk[7])
+          | (x6 = blk[5])
+          | (x7 = blk[3])))
     {
         blk[0] = blk[1] = blk[2] = blk[3] = blk[4] = blk[5] = blk[6] = blk[7] = blk[0] << 3;
         return;
@@ -394,12 +326,12 @@ NJ_INLINE void njRowIDCT(int* blk) {
 NJ_INLINE void njColIDCT(const int* blk, unsigned char *out, int stride) {
     int x0, x1, x2, x3, x4, x5, x6, x7, x8;
     if (!((x1 = blk[8*4] << 8)
-        | (x2 = blk[8*6])
-        | (x3 = blk[8*2])
-        | (x4 = blk[8*1])
-        | (x5 = blk[8*7])
-        | (x6 = blk[8*5])
-        | (x7 = blk[8*3])))
+          | (x2 = blk[8*6])
+          | (x3 = blk[8*2])
+          | (x4 = blk[8*1])
+          | (x5 = blk[8*7])
+          | (x6 = blk[8*5])
+          | (x7 = blk[8*3])))
     {
         x1 = njClip(((blk[0] + 32) >> 6) + 128);
         for (x0 = 8;  x0;  --x0) {
@@ -560,20 +492,20 @@ NJ_INLINE void njDecodeSOF(int decodeRed, int decodeGreen, int decodeBlue) {
         if (!(c->pixels = njAllocMem(c->stride * (nj.mbheight * nj.mbsizey * c->ssy / ssymax)))) njThrow(NJ_OUT_OF_MEM);
     }
     if (nj.ncomp == 3) {
-    	if (decodeRed == 1) {
-    		nj.rchannel = njAllocMem(nj.width * nj.height);
-        	if (!nj.rchannel) njThrow(NJ_OUT_OF_MEM);
-    	}
+        if (decodeRed == 1) {
+            nj.rchannel = njAllocMem(nj.width * nj.height);
+            if (!nj.rchannel) njThrow(NJ_OUT_OF_MEM);
+        }
 
-    	if (decodeGreen == 1) {
-    		nj.gchannel = njAllocMem(nj.width * nj.height);
-        	if (!nj.gchannel) njThrow(NJ_OUT_OF_MEM);
-    	}
+        if (decodeGreen == 1) {
+            nj.gchannel = njAllocMem(nj.width * nj.height);
+            if (!nj.gchannel) njThrow(NJ_OUT_OF_MEM);
+        }
 
-    	if (decodeBlue == 1) {
-    		nj.bchannel = njAllocMem(nj.width * nj.height);
-        	if (!nj.bchannel) njThrow(NJ_OUT_OF_MEM);
-    	}
+        if (decodeBlue == 1) {
+            nj.bchannel = njAllocMem(nj.width * nj.height);
+            if (!nj.bchannel) njThrow(NJ_OUT_OF_MEM);
+        }
     }
     njSkip(nj.length);
 }
@@ -699,7 +631,7 @@ NJ_INLINE void njDecodeScan(void) {
                 for (sbx = 0;  sbx < c->ssx;  ++sbx) {
                     njDecodeBlock(c, &c->pixels[((mby * c->ssy + sby) * c->stride + mbx * c->ssx + sbx) << 3]);
                     if (nj.error)
-                    return;
+                        return;
                 }
         if (++mbx >= nj.mbwidth) {
             mbx = 0;
@@ -819,17 +751,17 @@ NJ_INLINE void njConvert(int decodeRed, int decodeGreen, int decodeBlue) {
     int i;
     nj_component_t* c;
     for (i = 0, c = nj.comp;  i < nj.ncomp;  ++i, ++c) {
-        #if NJ_CHROMA_FILTER
-            while ((c->width < nj.width) || (c->height < nj.height)) {
-                if (c->width < nj.width) njUpsampleH(c);
-                if (nj.error) return;
-                if (c->height < nj.height) njUpsampleV(c);
-                if (nj.error) return;
-            }
-        #else
-            if ((c->width < nj.width) || (c->height < nj.height))
+#if NJ_CHROMA_FILTER
+        while ((c->width < nj.width) || (c->height < nj.height)) {
+            if (c->width < nj.width) njUpsampleH(c);
+            if (nj.error) return;
+            if (c->height < nj.height) njUpsampleV(c);
+            if (nj.error) return;
+        }
+#else
+        if ((c->width < nj.width) || (c->height < nj.height))
                 njUpsample(c);
-        #endif
+#endif
         if ((c->width < nj.width) || (c->height < nj.height)) njThrow(NJ_INTERNAL_ERR);
     }
     if (nj.ncomp == 3) {
@@ -848,15 +780,15 @@ NJ_INLINE void njConvert(int decodeRed, int decodeGreen, int decodeBlue) {
                 register int cr = pcr[x] - 128;
 
                 if (decodeRed == 1) {
-                	*prchannel++ = njClip((y            + 359 * cr + 128) >> 8);
+                    *prchannel++ = njClip((y            + 359 * cr + 128) >> 8);
                 }
 
                 if (decodeGreen == 1) {
-                	*pgchannel++ = njClip((y -  88 * cb - 183 * cr + 128) >> 8);
+                    *pgchannel++ = njClip((y -  88 * cb - 183 * cr + 128) >> 8);
                 }
 
                 if (decodeBlue == 1) {
-                	*pbchannel++ = njClip((y + 454 * cb            + 128) >> 8);
+                    *pbchannel++ = njClip((y + 454 * cb            + 128) >> 8);
                 }
             }
             py += nj.comp[0].stride;
@@ -892,12 +824,12 @@ void njDone(void) {
 }
 
 void njDoneLeaveRGBData(void) {
-	int i;
-	for (i = 0; i < 3; ++i) {
-		if (nj.comp[i].pixels) {
-			njFreeMem((void*) nj.comp[i].pixels);
-		}
-	}
+    int i;
+    for (i = 0; i < 3; ++i) {
+        if (nj.comp[i].pixels) {
+            njFreeMem((void*) nj.comp[i].pixels);
+        }
+    }
 }
 
 nj_result_t njDecode(const void* jpeg, const int size, int decodeRed, int decodeGreen, int decodeBlue) {

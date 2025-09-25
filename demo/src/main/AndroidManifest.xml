@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:tools="http://schemas.android.com/tools"
-    package="com.xinlan.imageeditandroid"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.READ_MEDIA_AUDIO"
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"
         android:minSdkVersion="33" />
-    <uses-permission
-        android:name="android.permission.READ_MEDIA_IMAGES"
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
         android:minSdkVersion="33" />
-    <uses-permission
-        android:name="android.permission.READ_MEDIA_VIDEO"
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"
         android:minSdkVersion="33" />
 
     <uses-feature android:name="android.hardware.camera"
@@ -39,12 +34,14 @@
 
         <!--选择相册图片Activity-->
         <activity
+            android:exported="true"
             android:name="com.xinlan.imageeditlibrary.picchooser.SelectPictureActivity"
             android:screenOrientation="portrait">
         </activity>
 
         <!--图片编辑Activity-->
         <activity
+            android:exported="true"
             android:name="com.xinlan.imageeditlibrary.editimage.EditImageActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
@@ -53,7 +50,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.xinlan.imageeditandroid.fileProvider"
+            android:authorities="${applicationId}.fileProvider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data
