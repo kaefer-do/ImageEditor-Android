@@ -27,7 +27,7 @@ import com.xinlan.imageeditlibrary.picchooser.SelectPictureActivity;
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    public static final int REQUEST_PERMISSON_SORAGE = 1;
+    public static final int REQUEST_PERMISSON_STORAGE = 1;
     public static final int REQUEST_PERMISSON_CAMERA = 2;
 
     public static final int SELECT_GALLERY_IMAGE_CODE = 7;
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int ACTION_STICKERS_IMAGE = 10;
     private MainActivity context;
     private ImageView imgView;
-    private View openAblum;
+    private View openAlbum;
     private View editImage;//
     private Bitmap mainBitmap;
     private int imageWidth, imageHeight;//
@@ -60,9 +60,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imageHeight = metrics.heightPixels;
 
         imgView = (ImageView) findViewById(R.id.img);
-        openAblum = findViewById(R.id.select_ablum);
+        openAlbum = findViewById(R.id.select_ablum);
         editImage = findViewById(R.id.edit_image);
-        openAblum.setOnClickListener(this);
+        openAlbum.setOnClickListener(this);
         editImage.setOnClickListener(this);
 
         mTakenPhoto = findViewById(R.id.take_photo);
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (id == R.id.edit_image) {
             editImageClick();
         } else if (id == R.id.select_ablum) {
-            selectFromAblum();
+            selectFromAlbum();
         }//end switch
     }
 
@@ -85,11 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 拍摄照片
      */
     protected void takePhotoClick() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestTakePhotoPermissions();
-        } else {
-            doTakePhoto();
-        }//end if
+        requestTakePhotoPermissions();
     }
 
     /**
@@ -98,16 +94,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void requestTakePhotoPermissions() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO)
-                        != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO)
-                        != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
                         != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_VIDEO,
-                            Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO},
-                    REQUEST_PERMISSON_CAMERA);
+            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
+                ActivityCompat.requestPermissions(this,
+                        new String[]{
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.READ_MEDIA_IMAGES,
+                        },
+                        REQUEST_PERMISSON_CAMERA);
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                        },
+                        REQUEST_PERMISSON_CAMERA);
+            }
             return;
         }
         doTakePhoto();
@@ -122,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             File photoFile = FileUtils.genEditFile();
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.xinlan.imageeditandroid.fileprovider",
+                        getPackageName() + ".fileProvider",
                         photoFile);
 
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -147,49 +151,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 从相册选择编辑图片
      */
-    private void selectFromAblum() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            openAblumWithPermissionsCheck();
-        } else {
-            openAblum();
-        }//end if
+    private void selectFromAlbum() {
+        openAlbumWithPermissionsCheck();
     }
 
-    private void openAblum() {
+    private void openAlbum() {
         MainActivity.this.startActivityForResult(new Intent(
                         MainActivity.this, SelectPictureActivity.class),
                 SELECT_GALLERY_IMAGE_CODE);
     }
 
-    private void openAblumWithPermissionsCheck() {
+    private void openAlbumWithPermissionsCheck() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO)
-                        != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
-                        != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO)
                         != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            Manifest.permission.CAMERA,
-                            Manifest.permission.READ_MEDIA_AUDIO,
-                            Manifest.permission.READ_MEDIA_IMAGES,
-                            Manifest.permission.READ_MEDIA_VIDEO
-                    },
-                    REQUEST_PERMISSON_SORAGE);
+            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
+                ActivityCompat.requestPermissions(this,
+                        new String[]{
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.READ_MEDIA_IMAGES,
+                        },
+                        REQUEST_PERMISSON_STORAGE);
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                        },
+                        REQUEST_PERMISSON_STORAGE);
+            }
             return;
         }
-        openAblum();
+        openAlbum();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_PERMISSON_SORAGE
+        if (requestCode == REQUEST_PERMISSON_STORAGE
                 && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            openAblum();
+            openAlbum();
             return;
         }//end if
 
@@ -208,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // System.out.println("RESULT_OK");
             switch (requestCode) {
                 case SELECT_GALLERY_IMAGE_CODE://
-                    handleSelectFromAblum(data);
+                    handleselectFromAlbum(data);
                     break;
                 case TAKE_PHOTO_CODE://拍照返回
                     handleTakePhoto(data);
@@ -249,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loadTask.execute(newFilePath);
     }
 
-    private void handleSelectFromAblum(Intent data) {
+    private void handleselectFromAlbum(Intent data) {
         String filepath = data.getStringExtra("imgPath");
         path = filepath;
         // System.out.println("path---->"+path);
